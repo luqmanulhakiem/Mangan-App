@@ -7,16 +7,17 @@ class AppTheme {
     colorScheme: ColorScheme.fromSeed(seedColor: AppPalette.primary),
     appBarTheme: _getAppBarTheme(),
     textTheme: _getTextTheme(),
+    scaffoldBackgroundColor: Colors.white,
   );
 
   static final darkThemeMode = ThemeData.dark().copyWith(
     colorScheme: ColorScheme.fromSeed(seedColor: AppPalette.primary),
     appBarTheme: _getAppBarTheme(colorDefault: Colors.black),
     textTheme: _getTextTheme(colorDefault: Colors.white),
+    scaffoldBackgroundColor: Colors.black,
   );
 
-  static AppBarTheme _getAppBarTheme(
-      {Color colorDefault = AppPalette.primary}) {
+  static AppBarTheme _getAppBarTheme({Color colorDefault = Colors.white}) {
     return AppBarTheme(
       color: colorDefault,
     );
