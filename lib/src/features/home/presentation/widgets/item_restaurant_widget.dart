@@ -1,13 +1,19 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mangan/src/core/endpoints/app_endpoints.dart';
+import 'package:mangan/src/shared/widgets/hero_image_widget.dart';
 
 class ItemRestaurantWidget extends StatelessWidget {
-  final String name, location, rating;
-  const ItemRestaurantWidget(
-      {super.key,
-      required this.name,
-      required this.location,
-      required this.rating});
+  final String name, location, picture;
+  final VoidCallback onPressed;
+  final num rating;
+  const ItemRestaurantWidget({
+    super.key,
+    required this.name,
+    required this.location,
+    required this.picture,
+    required this.rating,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,20 +21,24 @@ class ItemRestaurantWidget extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       child: InkWell(
-        onTap: () {
-          if (kDebugMode) print("Tapped");
-        },
+        onTap: onPressed,
         child: Row(
           children: [
-            Container(
-              height: 70,
-              width: 100,
-              margin: const EdgeInsets.only(right: 10),
-              decoration: BoxDecoration(
-                color: Colors.grey,
+            ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxHeight: 80,
+                minHeight: 80,
+                maxWidth: 120,
+                minWidth: 120,
+              ),
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
+                child: HeroImageWidget(
+                  url: AppEndpoints.smallPictureRestaurant(idPicture: picture),
+                ),
               ),
             ),
+            const SizedBox.square(dimension: 8),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -53,7 +63,7 @@ class ItemRestaurantWidget extends StatelessWidget {
                     const Icon(Icons.star),
                     const SizedBox(width: 2),
                     Text(
-                      rating,
+                      rating.toString(),
                       style: textTheme.bodyMedium,
                     ),
                   ],

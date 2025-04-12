@@ -8,18 +8,45 @@ class AppTheme {
     appBarTheme: _getAppBarTheme(),
     textTheme: _getTextTheme(),
     scaffoldBackgroundColor: Colors.white,
+    cardTheme: _cardTheme(color: Colors.grey.shade200),
+    // iconTheme: const IconThemeData(color: Colors.black),
   );
 
   static final darkThemeMode = ThemeData.dark().copyWith(
-    colorScheme: ColorScheme.fromSeed(seedColor: AppPalette.primary),
-    appBarTheme: _getAppBarTheme(colorDefault: Colors.black),
-    textTheme: _getTextTheme(colorDefault: Colors.white),
-    scaffoldBackgroundColor: Colors.black,
-  );
+      colorScheme: ColorScheme.fromSeed(seedColor: AppPalette.primary),
+      appBarTheme: _getAppBarTheme(
+        colorDefault: Colors.black,
+        isDarkMode: true,
+      ),
+      textTheme: _getTextTheme(colorDefault: Colors.white),
+      scaffoldBackgroundColor: Colors.black,
+      cardTheme: _cardTheme(color: Colors.grey.shade900),
+      tabBarTheme: TabBarTheme(
+        dividerColor: Colors.white,
+        labelColor: Colors.white,
+        overlayColor: WidgetStatePropertyAll(Colors.grey.shade700),
+        unselectedLabelColor: Colors.grey.shade700,
+        indicatorColor: Colors.white,
+      ),
+      listTileTheme: const ListTileThemeData(
+        textColor: Colors.white,
+      ));
 
-  static AppBarTheme _getAppBarTheme({Color colorDefault = Colors.white}) {
+  static CardTheme _cardTheme({required Color color}) {
+    return CardTheme(
+      color: color,
+    );
+  }
+
+  static AppBarTheme _getAppBarTheme({
+    Color colorDefault = Colors.white,
+    bool isDarkMode = false,
+  }) {
     return AppBarTheme(
-      color: colorDefault,
+      backgroundColor: colorDefault,
+      iconTheme: IconThemeData(
+        color: isDarkMode ? Colors.white : Colors.black,
+      ),
     );
   }
 
