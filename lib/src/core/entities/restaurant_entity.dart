@@ -4,6 +4,7 @@ import 'package:mangan/src/core/entities/food_entity.dart';
 class RestaurantEntity {
   final String id, name, description, pictureId, city;
   final num rating;
+  final String? address;
   final List<FoodEntity>? foods;
   final List<DrinkEntity>? drinks;
 
@@ -16,6 +17,7 @@ class RestaurantEntity {
     required this.rating,
     this.foods,
     this.drinks,
+    this.address,
   });
 
   factory RestaurantEntity.fromJson(Map<String, dynamic> json) {
@@ -36,6 +38,7 @@ class RestaurantEntity {
               .map((json) => DrinkEntity.fromJson(json))
               .toList()
           : [],
+      address: json['address'],
     );
   }
 }

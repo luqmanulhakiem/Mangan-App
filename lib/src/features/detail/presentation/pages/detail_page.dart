@@ -93,7 +93,7 @@ class _DetailPageState extends State<DetailPage> {
                             color: Colors.grey,
                           ),
                           Text(
-                            data.city,
+                            "${data.address}, ${data.city}",
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
