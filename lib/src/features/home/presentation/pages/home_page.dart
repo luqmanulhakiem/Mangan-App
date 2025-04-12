@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:mangan/src/core/entities/restaurant_entity.dart';
 import 'package:mangan/src/features/detail/presentation/pages/detail_page.dart';
+import 'package:mangan/src/features/home/presentation/provider/restaurant_list_provider.dart';
 import 'package:mangan/src/features/home/presentation/widgets/item_restaurant_widget.dart';
-import 'package:mangan/src/shared/data/repositories/restaurant_repositories_impl.dart';
 import 'package:mangan/src/shared/provider/theme_provider.dart';
+import 'package:mangan/src/shared/widgets/empty_widget.dart';
+import 'package:mangan/src/shared/widgets/loading_widget.dart';
 import 'package:mangan/src/shared/widgets/text_header_widget.dart';
+import 'package:mangan/src/shared/widgets/failed_widget.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,11 +17,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Future<List<RestaurantEntity>> _dataResponse;
   @override
   void initState() {
     super.initState();
-    _dataResponse = RestaurantRepositoriesImpl().getRestaurants();
+    final restaurantListProvider = context.read<RestaurantListProvider>();
+    Future.microtask(() {
+      restaurantListProvider.getRestaurantList();
+    });
   }
 
   @override
@@ -62,55 +66,55 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(
                 height: 40,
               ),
-              FutureBuilder(
-                future: _dataResponse,
-                builder: (context, snapshot) {
-                  switch (snapshot.connectionState) {
-                    case ConnectionState.waiting:
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-
-                    case ConnectionState.done:
-                      if (snapshot.hasError) {
-                        return ErrorWidget(snapshot.error.toString());
-                      }
-                      final data = snapshot.data;
-
-                      return ListView.builder(
-                        itemCount: data?.length,
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemBuilder: (context, index) {
-                          final item = data![index];
-                          return ItemRestaurantWidget(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                PageRouteBuilder(
-                                  pageBuilder: (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                  ) {
-                                    return DetailPage(
-                                      id: item.id,
-                                      label: item.name,
-                                      pictureId: item.pictureId,
-                                    );
-                                  },
-                                ),
-                              );
-                            },
-                            picture: item.pictureId,
-                            name: item.name,
-                            location: item.city,
-                            rating: item.rating,
+              Consumer<RestaurantListProvider>(
+                builder: (context, value, child) {
+                  if (value.isLoading) {
+                    return const LoadingWidget();
+                  } else if (value.isError) {
+                    return FailedWidget(
+                      error: value.errorMessage,
+                      onPressed: () {
+                        value.getRestaurantList();
+                      },
+                    );
+                  }
+                  final data = value.restaurantList;
+                  if (data.isEmpty) {
+                    return const EmptyWidget(
+                      label: "Failed to load restaurants",
+                    );
+                  }
+                  return ListView.builder(
+                    itemCount: data.length,
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      final item = data[index];
+                      return ItemRestaurantWidget(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            PageRouteBuilder(
+                              pageBuilder: (
+                                context,
+                                animation,
+                                secondaryAnimation,
+                              ) {
+                                return DetailPage(
+                                  id: item.id,
+                                  label: item.name,
+                                  pictureId: item.pictureId,
+                                );
+                              },
+                            ),
                           );
                         },
+                        picture: item.pictureId,
+                        name: item.name,
+                        location: item.city,
+                        rating: item.rating,
                       );
-                    default:
-                      return const SizedBox();
-                  }
+                    },
+                  );
                 },
               ),
             ],

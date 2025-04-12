@@ -10,15 +10,11 @@ class RestaurantRepositoriesImpl implements RestaurantRepositories {
   Future<List<RestaurantEntity>> getRestaurants() async {
     final url = Uri.https(AppEndpoints.baseUrl, AppEndpoints.listRestaurant);
     final resp = await http.get(url);
-    if (resp.statusCode == 200) {
-      final jsonResponse = jsonDecode(resp.body);
-      final entityResponse = (jsonResponse['restaurants'] as List)
-          .map((json) => RestaurantEntity.fromJson(json))
-          .toList();
-      return entityResponse;
-    } else {
-      throw Exception('Failed to load restaurant list');
-    }
+    final jsonResponse = jsonDecode(resp.body);
+    final entityResponse = (jsonResponse['restaurants'] as List)
+        .map((json) => RestaurantEntity.fromJson(json))
+        .toList();
+    return entityResponse;
   }
 
   @override
@@ -26,13 +22,9 @@ class RestaurantRepositoriesImpl implements RestaurantRepositories {
     final url =
         Uri.https(AppEndpoints.baseUrl, AppEndpoints.detailRestaurant(id: id));
     final resp = await http.get(url);
-    if (resp.statusCode == 200) {
-      final jsonResponse = jsonDecode(resp.body);
-      final entityResponse =
-          RestaurantEntity.fromJson(jsonResponse['restaurant']);
-      return entityResponse;
-    } else {
-      throw Exception('Failed to load restaurant list');
-    }
+    final jsonResponse = jsonDecode(resp.body);
+    final entityResponse =
+        RestaurantEntity.fromJson(jsonResponse['restaurant']);
+    return entityResponse;
   }
 }

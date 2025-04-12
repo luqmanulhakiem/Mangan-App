@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:mangan/src/core/endpoints/app_endpoints.dart';
 import 'package:mangan/src/core/entities/restaurant_entity.dart';
 import 'package:mangan/src/features/detail/presentation/pages/menu_page.dart';
-import 'package:mangan/src/shared/data/repositories/restaurant_repositories_impl.dart';
+import 'package:mangan/src/features/detail/presentation/provider/restaurant_provider.dart';
+import 'package:mangan/src/shared/widgets/failed_widget.dart';
 import 'package:mangan/src/shared/widgets/hero_image_widget.dart';
+import 'package:mangan/src/shared/widgets/loading_widget.dart';
 import 'package:mangan/src/shared/widgets/start_rating_widget.dart';
 import 'package:mangan/src/shared/widgets/text_header_widget.dart';
+import 'package:provider/provider.dart';
 
 class DetailPage extends StatefulWidget {
   final String id, label, pictureId;
@@ -21,14 +24,15 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  late Future<RestaurantEntity> _dataResponse;
   late RestaurantEntity data;
   @override
   void initState() {
     super.initState();
-    _dataResponse = RestaurantRepositoriesImpl().getSingleRestaurant(
-      id: widget.id,
-    );
+    final restaurantProvider = context.read<RestaurantProvider>();
+
+    Future.microtask(() {
+      restaurantProvider.getRestaurant(id: widget.id);
+    });
   }
 
   @override
@@ -59,79 +63,75 @@ class _DetailPageState extends State<DetailPage> {
                 ),
               ),
             ),
-            FutureBuilder(
-              future: _dataResponse,
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.waiting:
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+            Consumer<RestaurantProvider>(
+              builder: (context, value, child) {
+                if (value.isLoading) {
+                  return const LoadingWidget();
+                } else if (value.isError) {
+                  return FailedWidget(
+                    error: value.errorMessage,
+                    onPressed: () {
+                      value.getRestaurant(id: widget.id);
+                    },
+                  );
+                }
+                data = value.restaurant;
 
-                  case ConnectionState.done:
-                    if (snapshot.hasError) {
-                      return ErrorWidget(snapshot.error.toString());
-                    }
-                    data = snapshot.data!;
-                    return Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data.name,
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      Row(
                         children: [
+                          const Icon(
+                            Icons.location_pin,
+                            color: Colors.grey,
+                          ),
                           Text(
-                            data.name,
-                            style: Theme.of(context).textTheme.headlineMedium,
+                            data.city,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(color: Colors.grey),
                           ),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.location_pin,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                data.city,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                          const SizedBox.square(dimension: 10),
-                          Card(
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Rating: ${data.rating}",
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium,
-                                      ),
-                                      StartRatingWidget(rating: data.rating),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox.square(dimension: 10),
-                          Text(
-                            data.description,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox.square(dimension: 100),
                         ],
                       ),
-                    );
-                  default:
-                    return const SizedBox();
-                }
+                      const SizedBox.square(dimension: 10),
+                      Card(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Rating: ${data.rating}",
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                  ),
+                                  StartRatingWidget(rating: data.rating),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox.square(dimension: 10),
+                      Text(
+                        data.description,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox.square(dimension: 100),
+                    ],
+                  ),
+                );
               },
             ),
           ],
