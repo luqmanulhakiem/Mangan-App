@@ -1,40 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:mangan/src/core/entities/restaurant_entity.dart';
+import 'package:mangan/src/features/home/presentation/provider/restaurant_list_result_state.dart';
 import 'package:mangan/src/shared/data/repositories/restaurant_repositories_impl.dart';
 
 class RestaurantListProvider extends ChangeNotifier {
-  final List<RestaurantEntity> _restaurantList = [];
-
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-
-  bool _isError = false;
-  bool get isError => _isError;
-
-  String _errorMessage = "";
-  String get errorMessage => _errorMessage;
-
-  List<RestaurantEntity> get restaurantList => _restaurantList;
+  RestaurantListResultState _resultState = RestaurantListInitialState();
+  RestaurantListResultState get resultState => _resultState;
 
   void getRestaurantList() async {
-    _isLoading = true;
-    _isError = false;
-    _errorMessage = "";
+    _resultState = RestaurantListLoadingState();
     notifyListeners();
 
     try {
       final response = await RestaurantRepositoriesImpl().getRestaurants();
-      _restaurantList
-        ..clear()
-        ..addAll(response);
+      _resultState = RestaurantListLoadedState(data: response);
     } catch (e) {
-      _isError = true;
       final err = e as ClientException;
-      _errorMessage = "Error fetching restaurants: ${err.message}";
-      debugPrint(_errorMessage);
+      _resultState = RestaurantListErrorState(error: err.message);
+      debugPrint(err.message);
     }
-    _isLoading = false;
 
     notifyListeners();
   }

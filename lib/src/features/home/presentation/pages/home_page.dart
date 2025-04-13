@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mangan/src/core/entities/restaurant_entity.dart';
 import 'package:mangan/src/features/detail/presentation/pages/detail_page.dart';
 import 'package:mangan/src/features/home/presentation/provider/restaurant_list_provider.dart';
+import 'package:mangan/src/features/home/presentation/provider/restaurant_list_result_state.dart';
 import 'package:mangan/src/features/home/presentation/widgets/item_restaurant_widget.dart';
 import 'package:mangan/src/shared/provider/theme_provider.dart';
 import 'package:mangan/src/shared/widgets/empty_widget.dart';
@@ -68,53 +70,53 @@ class _HomePageState extends State<HomePage> {
               ),
               Consumer<RestaurantListProvider>(
                 builder: (context, value, child) {
-                  if (value.isLoading) {
-                    return const LoadingWidget();
-                  } else if (value.isError) {
-                    return FailedWidget(
-                      error: value.errorMessage,
-                      onPressed: () {
-                        value.getRestaurantList();
-                      },
-                    );
-                  }
-                  final data = value.restaurantList;
-                  if (data.isEmpty) {
-                    return const EmptyWidget(
-                      label: "Failed to load restaurants",
-                    );
-                  }
-                  return ListView.builder(
-                    itemCount: data.length,
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      final item = data[index];
-                      return ItemRestaurantWidget(
+                  return switch (value.resultState) {
+                    RestaurantListLoadingState() => const LoadingWidget(),
+                    RestaurantListErrorState(error: var message) =>
+                      FailedWidget(
+                        error: message,
                         onPressed: () {
-                          Navigator.of(context).push(
-                            PageRouteBuilder(
-                              pageBuilder: (
-                                context,
-                                animation,
-                                secondaryAnimation,
-                              ) {
-                                return DetailPage(
-                                  id: item.id,
-                                  label: item.name,
-                                  pictureId: item.pictureId,
+                          value.getRestaurantList();
+                        },
+                      ),
+                    RestaurantListLoadedState(
+                      data: List<RestaurantEntity> data,
+                    ) =>
+                      data.isEmpty
+                          ? const EmptyWidget(label: "Empty Restaurants Data")
+                          : ListView.builder(
+                              itemCount: data.length,
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                final item = data[index];
+                                return ItemRestaurantWidget(
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      PageRouteBuilder(
+                                        pageBuilder: (
+                                          context,
+                                          animation,
+                                          secondaryAnimation,
+                                        ) {
+                                          return DetailPage(
+                                            id: item.id,
+                                            label: item.name,
+                                            pictureId: item.pictureId,
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  picture: item.pictureId,
+                                  name: item.name,
+                                  location: item.city,
+                                  rating: item.rating,
                                 );
                               },
                             ),
-                          );
-                        },
-                        picture: item.pictureId,
-                        name: item.name,
-                        location: item.city,
-                        rating: item.rating,
-                      );
-                    },
-                  );
+                    _ => const SizedBox(),
+                  };
                 },
               ),
             ],
