@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mangan/src/core/theme/app_theme.dart';
+import 'package:mangan/src/features/detail/presentation/provider/favorite_detail_provider.dart';
 import 'package:mangan/src/features/detail/presentation/provider/restaurant_provider.dart';
+import 'package:mangan/src/features/home/presentation/provider/favorite_list_provider.dart';
 import 'package:mangan/src/features/home/presentation/provider/restaurant_list_provider.dart';
 import 'package:mangan/src/features/home/presentation/widgets/main_page_widget.dart';
+import 'package:mangan/src/shared/data/datasources/localdatasources/sqflite_service.dart';
 import 'package:mangan/src/shared/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -14,13 +17,23 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
+          create: (_) => themeProvider,
+        ),
+        ChangeNotifierProvider(
           create: (context) => RestaurantListProvider(),
         ),
         ChangeNotifierProvider(
           create: (context) => RestaurantProvider(),
         ),
         ChangeNotifierProvider(
-          create: (_) => themeProvider,
+          create: (context) => FavoriteDetailProvider(
+            SqfliteService(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => FavoriteListProvider(
+            SqfliteService(),
+          ),
         ),
       ],
       child: const MyApp(),

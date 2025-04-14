@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:mangan/src/core/endpoints/app_endpoints.dart';
 import 'package:mangan/src/core/entities/restaurant_entity.dart';
 import 'package:mangan/src/features/detail/presentation/pages/menu_page.dart';
+import 'package:mangan/src/features/detail/presentation/provider/favorite_detail_provider.dart';
+import 'package:mangan/src/features/detail/presentation/provider/favorite_detail_result_state.dart';
 import 'package:mangan/src/features/detail/presentation/provider/restaurant_provider.dart';
 import 'package:mangan/src/features/detail/presentation/provider/restaurant_result_state.dart';
+import 'package:mangan/src/features/detail/presentation/widgets/favorite_button_widget.dart';
 import 'package:mangan/src/shared/widgets/failed_widget.dart';
 import 'package:mangan/src/shared/widgets/hero_image_widget.dart';
 import 'package:mangan/src/shared/widgets/loading_widget.dart';
@@ -30,9 +33,11 @@ class _DetailPageState extends State<DetailPage> {
   void initState() {
     super.initState();
     final restaurantProvider = context.read<RestaurantProvider>();
+    final favoriteProvider = context.read<FavoriteDetailProvider>();
 
     Future.microtask(() {
       restaurantProvider.getRestaurant(id: widget.id);
+      favoriteProvider.loadFavorite(id: widget.id);
     });
   }
 
@@ -71,17 +76,27 @@ class _DetailPageState extends State<DetailPage> {
                   Positioned(
                     bottom: 20,
                     right: 30,
-                    child: CircleAvatar(
-                      backgroundColor: Colors.white,
-                      child: IconButton(
-                        onPressed: () {
-                          debugPrint("A");
-                        },
-                        icon: const Icon(
-                          Icons.favorite_border_outlined,
-                          color: Colors.red,
-                        ),
-                      ),
+                    child: Consumer<FavoriteDetailProvider>(
+                      builder: (context, value, child) {
+                        return switch (value.resultState) {
+                          FavoriteDetailLoadingState() =>
+                            const CircularProgressIndicator.adaptive(),
+                          FavoriteDetailLoadedState(
+                            isFavorite: var isFavorite
+                          ) =>
+                            FavoriteButtonWidget(
+                              onPressed: () {
+                                if (isFavorite) {
+                                  value.removeFavorite(widget.id);
+                                } else {
+                                  value.addFavorite(restaurant: data);
+                                }
+                              },
+                              savedFavorite: isFavorite,
+                            ),
+                          _ => const SizedBox(),
+                        };
+                      },
                     ),
                   )
                 ],
@@ -177,7 +192,7 @@ class _DetailPageState extends State<DetailPage> {
           ),
           const SizedBox.square(dimension: 10),
           Text(
-            respData.description,
+            respData.description ?? "",
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox.square(dimension: 100),
