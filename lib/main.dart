@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mangan/src/core/theme/app_theme.dart';
 import 'package:mangan/src/features/detail/presentation/provider/restaurant_provider.dart';
-import 'package:mangan/src/features/home/presentation/pages/home_page.dart';
 import 'package:mangan/src/features/home/presentation/provider/restaurant_list_provider.dart';
+import 'package:mangan/src/features/home/presentation/widgets/main_page_widget.dart';
 import 'package:mangan/src/shared/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightThemeMode,
       darkTheme: AppTheme.darkThemeMode,
       themeMode: themeProvider.themeMode,
-      home: const HomePage(),
+      home: const MainPageWidget(),
     );
   }
 }

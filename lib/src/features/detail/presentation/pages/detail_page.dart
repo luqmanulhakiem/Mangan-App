@@ -52,16 +52,39 @@ class _DetailPageState extends State<DetailPage> {
                 minHeight: 250,
                 maxHeight: 300,
               ),
-              child: ClipRRect(
-                borderRadius: const BorderRadiusDirectional.only(
-                  bottomEnd: Radius.circular(15),
-                  bottomStart: Radius.circular(15),
-                ),
-                child: HeroImageWidget(
-                  url: AppEndpoints.mediumPictureRestaurant(
-                    idPicture: widget.pictureId,
+              child: Stack(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.sizeOf(context).width,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadiusDirectional.only(
+                        bottomEnd: Radius.circular(15),
+                        bottomStart: Radius.circular(15),
+                      ),
+                      child: HeroImageWidget(
+                        url: AppEndpoints.mediumPictureRestaurant(
+                          idPicture: widget.pictureId,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                  Positioned(
+                    bottom: 20,
+                    right: 30,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: IconButton(
+                        onPressed: () {
+                          debugPrint("A");
+                        },
+                        icon: const Icon(
+                          Icons.favorite_border_outlined,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
             Consumer<RestaurantProvider>(
