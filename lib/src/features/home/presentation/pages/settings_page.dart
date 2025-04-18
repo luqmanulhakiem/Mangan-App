@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mangan/src/features/home/presentation/widgets/switch_setting_widget.dart';
+import 'package:mangan/src/shared/provider/local_notification_provider.dart';
 import 'package:mangan/src/shared/provider/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -14,6 +15,9 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final localNotificationProvider =
+        Provider.of<LocalNotificationProvider>(context);
+
     bool isDarkMode = themeProvider.themeMode == ThemeMode.dark;
 
     return SingleChildScrollView(
@@ -21,12 +25,17 @@ class _SettingsPageState extends State<SettingsPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            SwitchSettingWidget(
-              title: "Restaurant Notification",
-              subtitle: "Enable Notification",
-              value: false,
-              onChanged: (val) {
-                debugPrint(val.toString());
+            Consumer<LocalNotificationProvider>(
+              builder: (context, value, child) {
+                return SwitchSettingWidget(
+                  title: "Lunch Notification",
+                  subtitle: "Enable Notification to active lunch notification",
+                  value: value.isDailyReminderEnabled,
+                  onChanged: (val) {
+                    localNotificationProvider.toggleDailyReminder(val);
+                    debugPrint(val.toString());
+                  },
+                );
               },
             ),
             SwitchSettingWidget(

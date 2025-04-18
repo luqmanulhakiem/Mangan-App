@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mangan/src/core/entities/restaurant_entity.dart';
 import 'package:mangan/src/features/detail/presentation/pages/detail_page.dart';
+import 'package:mangan/src/features/home/domain/usecase/get_notification_permission.dart';
 import 'package:mangan/src/features/home/presentation/provider/restaurant_list_provider.dart';
 import 'package:mangan/src/features/home/presentation/provider/restaurant_list_result_state.dart';
 import 'package:mangan/src/features/home/presentation/widgets/item_restaurant_widget.dart';
@@ -24,6 +25,7 @@ class _HomePageState extends State<HomePage> {
     Future.microtask(() {
       restaurantListProvider.getRestaurantList();
     });
+    GetNotificationPermission().requestPermission(context);
   }
 
   @override
