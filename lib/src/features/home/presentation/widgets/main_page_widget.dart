@@ -24,9 +24,7 @@ class _MainPageWidgetState extends State<MainPageWidget> {
   ];
 
   void onTapped(int index) {
-    setState(() {
-      selectedIndexNotifier.value = index;
-    });
+    selectedIndexNotifier.value = index;
   }
 
   @override
