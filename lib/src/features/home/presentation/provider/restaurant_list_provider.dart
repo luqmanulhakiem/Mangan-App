@@ -7,7 +7,7 @@ class RestaurantListProvider extends ChangeNotifier {
   RestaurantListResultState _resultState = RestaurantListInitialState();
   RestaurantListResultState get resultState => _resultState;
 
-  void getRestaurantList() async {
+  Future<void> getRestaurantList() async {
     _resultState = RestaurantListLoadingState();
     notifyListeners();
 

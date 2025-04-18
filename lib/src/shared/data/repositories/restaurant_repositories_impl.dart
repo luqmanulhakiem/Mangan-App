@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:mangan/src/core/endpoints/app_endpoints.dart';
 import 'package:mangan/src/core/entities/restaurant_entity.dart';
@@ -23,8 +24,12 @@ class RestaurantRepositoriesImpl implements RestaurantRepositories {
         Uri.https(AppEndpoints.baseUrl, AppEndpoints.detailRestaurant(id: id));
     final resp = await http.get(url);
     final jsonResponse = jsonDecode(resp.body);
-    final entityResponse =
-        RestaurantEntity.fromJson(jsonResponse['restaurant']);
-    return entityResponse;
+    if (resp.statusCode == 200) {
+      final entityResponse =
+          RestaurantEntity.fromJson(jsonResponse['restaurant']);
+      return entityResponse;
+    } else {
+      throw HttpException('${jsonResponse['message']}');
+    }
   }
 }
